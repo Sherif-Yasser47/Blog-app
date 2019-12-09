@@ -8,9 +8,9 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 //Admin Blocking user End-Point.
-router.post('/admin/block', auth, async (req, res) => {
+router.post('/users/block', auth, async (req, res) => {
     const authorizedUser = await Admin.findOne({ _id: req.user._id })
-    if(!authorizedUser){
+    if (!authorizedUser) {
         return res.status(400).send({ error: 'User must be an admin' })
     }
     try {
@@ -18,9 +18,13 @@ router.post('/admin/block', auth, async (req, res) => {
         if (!blockedUser) {
             throw new Error('No user found by this ID')
         }
-        blockedUser.blocked = true
+        if (req.query.unblock === 'true') {
+            blockedUser.blocked = false
+        } else {
+            blockedUser.blocked = true
+        }
         await blockedUser.save()
-        res.send({blockedUser})
+        res.send({ blockedUser })
     } catch (error) {
         res.status(404).send({ error: error.message })
         console.log(error);
@@ -28,13 +32,13 @@ router.post('/admin/block', auth, async (req, res) => {
 })
 
 //Admin deleting blog End-Point.
-router.delete('/admin/deleteBlog', auth, async (req, res) => {
+router.delete('/users/deleteBlog', auth, async (req, res) => {
     const authorizedUser = await Admin.findOne({ _id: req.user._id })
-    if(!authorizedUser){
+    if (!authorizedUser) {
         return res.status(400).send({ error: 'User must be an admin' })
     }
     try {
-        const blog = await Blog.findOneAndDelete({ _id: req.query.blogId})
+        const blog = await Blog.findOneAndDelete({ _id: req.query.blogId })
         if (!blog) {
             throw new Error('No blog found by this ID')
         }
