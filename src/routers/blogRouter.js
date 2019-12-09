@@ -10,6 +10,7 @@ const router = express.Router();
 //Creating blogs End-Point.
 router.post('/blogs', auth, async (req, res) => {
     try {
+        await req.user.checkBlockedUser()
         if (Object.keys(req.body).length === 0) {
             throw new Error('No data are inserted')
         }
@@ -42,6 +43,7 @@ router.post('/blogs/img/:id', auth, upload.single('image'), async (req, res) => 
     if (!req.file) {
         return res.status(400).send({ error: 'No image selected' })
     }
+    await req.user.checkBlockedUser()
     const blog = await Blog.findOne({ _id: req.params.id, userID: req.user._id })
     if (!blog) {
         return res.status(404).send({ error: 'No task found' })
@@ -59,6 +61,7 @@ router.post('/blogs/img/:id', auth, upload.single('image'), async (req, res) => 
 //Adding likes to blog.
 router.post('/blogs/likes/:id', auth, async (req, res) => {
     try {
+        await req.user.checkBlockedUser()
         const blog = await Blog.findById(req.params.id)
         if (!blog) {
             throw new Error('No blog found by this ID')
@@ -194,6 +197,7 @@ router.patch('/blogs/:id', auth, async (req, res) => {
         return res.status(400).send({ error: 'one or more fields are not existed to update' })
     }
     try {
+        await req.user.checkBlockedUser()
         const blog = await Blog.findOne({ _id: req.params.id, userID: req.user._id })
         if (!blog) {
             throw new Error('No blog Found')

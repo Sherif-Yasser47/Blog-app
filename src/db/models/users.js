@@ -111,6 +111,13 @@ userSchema.statics.findByCredentials = async function (email, password) {
     return user;
 }
 
+userSchema.methods.checkBlockedUser = function () {
+    if (this.blocked === true) {
+        throw new Error('user is blocked')
+    }
+    return;
+}
+
 //Hashing user password before saving.
 userSchema.pre('save', async function (next) {
     const user = this

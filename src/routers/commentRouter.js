@@ -11,6 +11,7 @@ router.post('/comments/:blogId', auth, async (req, res) => {
         if (Object.keys(req.body).length === 0) {
             throw new Error('No data are inserted')
         }
+        await req.user.checkBlockedUser()
         const createdComment = new Comment({
             ...req.body,
             blogID: req.params.blogId,
@@ -28,6 +29,7 @@ router.post('/comments/:blogId', auth, async (req, res) => {
 //Adding Replies to comment End-Point.
 router.post('/comments/replies/:id', auth, async (req, res) => {
     try {
+        await req.user.checkBlockedUser()
         const comment = await Comment.findById(req.params.id)
         if (!comment) {
             throw new Error('No comment found by this ID')
@@ -48,6 +50,7 @@ router.post('/comments/replies/:id', auth, async (req, res) => {
 //Adding likes to comment.
 router.post('/comments/likes/:id', auth, async (req, res) => {
     try {
+        await req.user.checkBlockedUser()
         const comment = await Comment.findById(req.params.id)
         if (!comment) {
             throw new Error('No comment found by this ID')
@@ -153,6 +156,7 @@ router.patch('/comments/:id', auth, async (req, res) => {
         return res.status(400).send({ error: 'one or more fields are not existed to update' })
     }
     try {
+        await req.user.checkBlockedUser()
         const comment = await Comment.findOne({ _id: req.params.id, userID: req.user._id })
         if (!comment) {
             throw new Error('No comment Found')
