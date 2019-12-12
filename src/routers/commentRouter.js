@@ -47,7 +47,7 @@ router.post('/comments/replies/:id', auth, async (req, res) => {
     }
 })
 
-//Adding likes to comment.
+//Adding likes to comments & replies.
 router.post('/comments/likes/:id', auth, async (req, res) => {
     try {
         await req.user.checkBlockedUser()
@@ -60,7 +60,14 @@ router.post('/comments/likes/:id', auth, async (req, res) => {
             userID: req.user._id,
             userName: req.user.userName
         }
-        comment.likes.push(createdLike)
+        if (req.query.likeReply) {
+            let repIndex = comment.replies.findIndex((reply) => reply._id.toString() === req.query.likeReply)
+            comment.replies[repIndex].likes.push(createdLike)
+            await comment.save()
+            return res.status(201).send({ createdLike, replyLikes: comment.replies[repIndex].likes})
+        } else {
+            comment.likes.push(createdLike)
+        }
         await comment.save()
         res.status(201).send({ createdLike, commentLikes: comment.likes })
     } catch (error) {
@@ -139,7 +146,7 @@ router.get('/comments/replies/:id', auth, async (req, res) => {
         if (!comment) {
             throw new Error('No comment found by this ID')
         }
-        res.send({commentReplies:comment.replies})
+        res.send({ commentReplies: comment.replies })
     } catch (error) {
         res.status(404).send({ error: error.message })
     }

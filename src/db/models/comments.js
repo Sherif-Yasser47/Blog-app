@@ -23,7 +23,7 @@ const likeSchema = new Schema({
     timestamps: true
 })
 
-const replySchema = new Schema({ 
+const replySchema = new Schema({
     replyText: {
         type: String,
         trim: true,
@@ -44,7 +44,8 @@ const replySchema = new Schema({
         type: String,
         required: true,
         ref: 'User'
-    }
+    },
+    likes: [likeSchema]
 }, {
     timestamps: true
 });
@@ -60,7 +61,7 @@ const commentSchema = new Schema({
             }
         }
     },
-    blogID:{
+    blogID: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'Blog'
