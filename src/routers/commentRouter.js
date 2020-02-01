@@ -8,8 +8,11 @@ const router = express.Router();
 //Creating Comment to blog End-Point.
 router.post('/comments/:blogId', auth, async (req, res) => {
     try {
+        const blog = await Blog.findById(req.params.blogId)
         if (Object.keys(req.body).length === 0) {
             throw new Error('No data are inserted')
+        } else if (!blog) {
+            throw new Error('No blog found by this ID')
         }
         await req.user.checkBlockedUser()
         const createdComment = new Comment({
@@ -64,7 +67,7 @@ router.post('/comments/likes/:id', auth, async (req, res) => {
             let repIndex = comment.replies.findIndex((reply) => reply._id.toString() === req.query.likeReply)
             comment.replies[repIndex].likes.push(createdLike)
             await comment.save()
-            return res.status(201).send({ createdLike, replyLikes: comment.replies[repIndex].likes})
+            return res.status(201).send({ createdLike, replyLikes: comment.replies[repIndex].likes })
         } else {
             comment.likes.push(createdLike)
         }
